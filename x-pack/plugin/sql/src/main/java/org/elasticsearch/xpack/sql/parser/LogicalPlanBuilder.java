@@ -34,8 +34,10 @@ import org.elasticsearch.xpack.sql.parser.SqlBaseParser.GroupingElementContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.JoinCriteriaContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.JoinRelationContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.LimitClauseContext;
+import org.elasticsearch.xpack.sql.parser.SqlBaseParser.LimitSpecificationContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.NamedQueryContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.NamedValueExpressionContext;
+import org.elasticsearch.xpack.sql.parser.SqlBaseParser.OffsetClauseContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.OrderByContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.PivotArgsContext;
 import org.elasticsearch.xpack.sql.parser.SqlBaseParser.PivotClauseContext;
@@ -103,16 +105,46 @@ abstract class LogicalPlanBuilder extends ExpressionBuilder {
             plan = new OrderBy(source(ctx.ORDER(), endContext), plan, visitList(ctx.orderBy(), Order.class));
         }
 
-        LimitClauseContext limitClause = ctx.limitClause();
-        if (limitClause != null) {
-            Token limit = limitClause.limit;
-            if (limit != null && limitClause.INTEGER_VALUE() != null) {
-                if (plan instanceof Limit) {
-                    throw new ParsingException(source(limitClause),
-                        "TOP and LIMIT are not allowed in the same query - use one or the other");
-                } else {
-                    plan = limit(plan, source(limitClause), limit);
+        plan = addLimitAndOffset(plan, ctx.limitSpecification());
+
+        return plan;
+    }
+
+    private LogicalPlan addLimitAndOffset(LogicalPlan plan, LimitSpecificationContext limitSpec) {
+        if (limitSpec != null) {
+            if (plan instanceof Limit) {
+                throw new ParsingException(
+                    source(limitSpec),
+                    "TOP and LIMIT/OFFSET are not allowed in the same query - use one or the other"
+                );
+            } else {
+                Literal limit = Literal.NULL;
+                Literal offset = Literal.ZERO;
+
+                OffsetClauseContext offsetClause = limitSpec.offsetClause();
+                if (offsetClause != null) {
+                    offset = new Literal(
+                        source(offsetClause.INTEGER_VALUE()),
+                        Integer.parseInt(offsetClause.INTEGER_VALUE().getText()),
+                        DataTypes.INTEGER
+                    );
                 }
+
+                LimitClauseContext limitClause = limitSpec.limitClause();
+                if (limitClause != null && limitClause.INTEGER_VALUE() != null) {
+                    limit =  new Literal(
+                        source(limitClause.INTEGER_VALUE()),
+                        Integer.parseInt(limitClause.INTEGER_VALUE().getText()),
+                        DataTypes.INTEGER
+                    );
+                }
+
+                plan = new Limit(
+                    source(limitSpec),
+                    limit,
+                    offset,
+                    plan
+                );
             }
         }
 
@@ -165,7 +197,8 @@ abstract class LogicalPlanBuilder extends ExpressionBuilder {
         // TOP
         SqlBaseParser.TopClauseContext topClauseContext = ctx.topClause();
         if (topClauseContext != null && topClauseContext.top != null && topClauseContext.INTEGER_VALUE() != null) {
-            query = limit(query, source(topClauseContext), topClauseContext.top);
+            Source source = source(topClauseContext);
+            query = new Limit(source, new Literal(source, Integer.parseInt(topClauseContext.top.getText()), DataTypes.INTEGER), query);
         }
 
         return query;
@@ -257,7 +290,4 @@ abstract class LogicalPlanBuilder extends ExpressionBuilder {
         return new UnresolvedRelation(source(ctx), tableIdentifier, alias, ctx.FROZEN() != null);
     }
 
-    private Limit limit(LogicalPlan plan, Source source, Token limit) {
-        return new Limit(source, new Literal(source, Integer.parseInt(limit.getText()), DataTypes.INTEGER), plan);
-    }
 }

@@ -7,9 +7,8 @@
 
 package org.elasticsearch.xpack.eql.planner;
 
-import org.elasticsearch.xpack.eql.execution.search.Limit;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.plan.logical.Sequence;
 import org.elasticsearch.xpack.eql.plan.physical.EsQueryExec;
 import org.elasticsearch.xpack.eql.plan.physical.FilterExec;
@@ -102,10 +101,15 @@ class Mapper extends RuleExecutor<PhysicalPlan> {
                 return new OrderExec(p.source(), map(o.child()), o.order());
             }
 
-            if (p instanceof LimitWithOffset) {
-                LimitWithOffset l = (LimitWithOffset) p;
+            if (p instanceof Limit) {
+                Limit l = (Limit) p;
                 int limit = (Integer) DataTypeConverter.convert(Foldables.valueOf(l.limit()), DataTypes.INTEGER);
-                return new LimitWithOffsetExec(p.source(), map(l.child()), new Limit(limit, l.offset()));
+                int offset = (Integer) DataTypeConverter.convert(Foldables.valueOf(l.offset()), DataTypes.INTEGER);
+                return new LimitWithOffsetExec(
+                    p.source(),
+                    map(l.child()),
+                    new org.elasticsearch.xpack.eql.execution.search.Limit(limit, offset)
+                );
             }
 
             if (p instanceof EsRelation) {

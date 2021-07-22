@@ -36,7 +36,7 @@ public class VerifierTests extends ESTestCase {
     private String error(String sql) {
         PlanningException e = expectThrows(
             PlanningException.class,
-            () -> planner.plan(analyzer.analyze(parser.createStatement(sql), true), true)
+            () -> planner.plan(analyzer.analyze(parser.createStatement(sql), true))
         );
         String message = e.getMessage();
         assertTrue(message.startsWith("Found "));
@@ -47,19 +47,19 @@ public class VerifierTests extends ESTestCase {
 
     public void testSubselectWithOrderByOnTopOfOrderByAndLimit() {
         assertEquals(
-            "1:60: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+            "1:60: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
             error("SELECT * FROM (SELECT * FROM test ORDER BY 1 ASC LIMIT 10) ORDER BY 2")
         );
         assertEquals(
-                "1:72: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+                "1:72: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
                 error("SELECT * FROM (SELECT * FROM (SELECT * FROM test LIMIT 10) ORDER BY 1) ORDER BY 2")
         );
         assertEquals(
-                "1:75: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+                "1:75: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
                 error("SELECT * FROM (SELECT * FROM (SELECT * FROM test ORDER BY 1 ASC) LIMIT 5) ORDER BY 1 DESC")
         );
         assertEquals(
-                "1:152: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+                "1:152: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
                 error("SELECT * FROM (" +
                         "SELECT * FROM (" +
                             "SELECT * FROM (" +
@@ -70,15 +70,47 @@ public class VerifierTests extends ESTestCase {
         );
     }
 
+    public void testSubselectWithOrderByOnTopOfOrderByAndOffset() {
+        assertEquals(
+            "1:61: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
+            error("SELECT * FROM (SELECT * FROM test ORDER BY 1 ASC OFFSET 10) ORDER BY 2")
+        );
+        assertEquals(
+            "1:73: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
+            error("SELECT * FROM (SELECT * FROM (SELECT * FROM test OFFSET 10) ORDER BY 1) ORDER BY 2")
+        );
+        assertEquals(
+            "1:76: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
+            error("SELECT * FROM (SELECT * FROM (SELECT * FROM test ORDER BY 1 ASC) OFFSET 5) ORDER BY 1 DESC")
+        );
+        assertEquals(
+            "1:153: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
+            error("SELECT * FROM (" +
+                "SELECT * FROM (" +
+                "SELECT * FROM (" +
+                "SELECT * FROM test ORDER BY int DESC" +
+                ") ORDER BY int ASC NULLS LAST) " +
+                "ORDER BY int DESC NULLS LAST OFFSET 12) " +
+                "ORDER BY int DESC NULLS FIRST")
+        );
+    }
+
+    public void testSubselectWithOrderByOnTopOfOrderByAndLimitAndOffset() {
+        assertEquals(
+            "1:69: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
+            error("SELECT * FROM (SELECT * FROM test ORDER BY 1 ASC LIMIT 5 OFFSET 10) ORDER BY 2")
+        );
+    }
+
     public void testSubselectWithOrderByOnTopOfGroupByOrderByAndLimit() {
         assertEquals(
-            "1:96: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+            "1:96: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
             error(
                 "SELECT * FROM (SELECT max(int) AS max, bool FROM test GROUP BY bool ORDER BY max ASC LIMIT 10) ORDER BY max DESC"
             )
         );
         assertEquals(
-            "1:112: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+            "1:112: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
             error(
                 "SELECT * FROM ("
                     + "SELECT * FROM ("
@@ -88,7 +120,7 @@ public class VerifierTests extends ESTestCase {
             )
         );
         assertEquals(
-                "1:186: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT",
+                "1:186: Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET",
                 error("SELECT * FROM (" +
                         "SELECT * FROM (" +
                             "SELECT * FROM (" +

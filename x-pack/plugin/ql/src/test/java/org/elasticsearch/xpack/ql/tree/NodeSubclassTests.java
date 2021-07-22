@@ -507,6 +507,9 @@ public class NodeSubclassTests<T extends B, B extends Node<B>> extends ESTestCas
         if (argClass == int.class) {
             return randomInt();
         }
+        if (argClass == Integer.class) {
+            return randomFrom(randomInt(), null);
+        }
         if (argClass == String.class) {
             // Nor strings
             return randomAlphaOfLength(5);

@@ -167,6 +167,7 @@ class QueryFolder extends RuleExecutor<PhysicalPlan> {
                         processors.build(),
                         queryC.sort(),
                         queryC.limit(),
+                        queryC.offset(),
                         queryC.shouldTrackHits(),
                         queryC.shouldIncludeFrozen(),
                         queryC.minPageSize());
@@ -198,6 +199,7 @@ class QueryFolder extends RuleExecutor<PhysicalPlan> {
                         qContainer.scalarFunctions(),
                         qContainer.sort(),
                         qContainer.limit(),
+                        qContainer.offset(),
                         qContainer.shouldTrackHits(),
                         qContainer.shouldIncludeFrozen(),
                         qContainer.minPageSize());
@@ -763,12 +765,26 @@ class QueryFolder extends RuleExecutor<PhysicalPlan> {
         protected PhysicalPlan rule(LimitExec plan) {
             if (plan.child() instanceof EsQueryExec) {
                 EsQueryExec exec = (EsQueryExec) plan.child();
-                int limit = (Integer) SqlDataTypeConverter.convert(Foldables.valueOf(plan.limit()), DataTypes.INTEGER);
-                int currentSize = exec.queryContainer().limit();
-                int newSize = currentSize < 0 ? limit : Math.min(currentSize, limit);
-                return exec.with(exec.queryContainer().withLimit(newSize));
+                QueryContainer qc = exec.queryContainer();
+                Tuple<Integer, Integer> limitWithOffset = combineLimits(
+                    qc.limit() == -1 ? null : qc.limit(), qc.offset(), plan.limit(), plan.offset());
+
+                qc = qc.withOffset(limitWithOffset.v2());
+                if(limitWithOffset.v1() != null) {
+                    qc = qc.withLimit(limitWithOffset.v1());
+                }
+                return exec.with(qc);
             }
             return plan;
+        }
+
+        private Tuple<Integer, Integer> combineLimits(Integer currentLimit, int currentOffset,
+                                                      Integer additionalLimit, int additionalOffset) {
+            Integer newLimit = currentLimit == null ? additionalLimit : (Integer) Math.max(0, currentLimit - additionalOffset);
+
+            int newOffset = currentOffset + additionalOffset;
+
+            return Tuple.tuple(newLimit, newOffset);
         }
     }
 
@@ -830,6 +846,7 @@ class QueryFolder extends RuleExecutor<PhysicalPlan> {
                         query.scalarFunctions(),
                         query.sort(),
                         query.limit(),
+                        query.offset(),
                         query.shouldTrackHits(),
                         query.shouldIncludeFrozen(),
                         values.size()));

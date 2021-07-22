@@ -13,7 +13,7 @@ import org.elasticsearch.xpack.ql.plan.logical.LogicalPlan;
 import org.elasticsearch.xpack.ql.tree.NodeInfo;
 import org.elasticsearch.xpack.ql.tree.Source;
 
-public class Head extends LimitWithOffset {
+public class Head extends Limit {
 
     public Head(Source source, Expression limit, LogicalPlan child) {
         super(source, limit, child);

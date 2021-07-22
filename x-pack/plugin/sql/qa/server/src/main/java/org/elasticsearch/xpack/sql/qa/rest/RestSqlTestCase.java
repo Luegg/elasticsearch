@@ -466,6 +466,31 @@ public abstract class RestSqlTestCase extends BaseRestSqlTestCase implements Err
         );
     }
 
+    public void testOffsetWithLimitGreaterThanFetchSize() throws Exception {
+        index("{\"a\": 1}");
+
+        int fetchSize = 6;
+
+        for (String sql : Arrays.asList(
+            "SELECT * FROM test LIMIT 6 OFFSET 1",
+            "SELECT * FROM test OFFSET 1",
+            "SELECT * FROM test LIMIT ALL OFFSET 1"
+        )) {
+            String mode = randomMode();
+            expectBadRequest(
+                () -> runSql(
+                    new StringEntity(
+                        query(sql).fetchSize(fetchSize).mode(mode).columnar(randomBoolean()).toString(),
+                        ContentType.APPLICATION_JSON
+                    ),
+                    "",
+                    mode
+                ),
+                containsString("Query must specify a LIMIT < fetch_size if OFFSET is used")
+            );
+        }
+    }
+
     public void testUseColumnarForUnsupportedFormats() throws Exception {
         String format = randomFrom("txt", "csv", "tsv");
         index("{\"foo\":1}");

@@ -10,7 +10,7 @@ package org.elasticsearch.xpack.eql.analysis;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.session.EqlConfiguration;
 import org.elasticsearch.xpack.ql.expression.Literal;
 import org.elasticsearch.xpack.ql.plan.logical.LogicalPlan;
@@ -53,7 +53,7 @@ public class PostAnalyzer {
                 Project p = new Project(projectCtx, k.child(), k.extractionAttributes());
 
                 // TODO: this could be incorporated into the query generation
-                LogicalPlan fetchSize = new LimitWithOffset(synthetic("<fetch-size>"),
+                LogicalPlan fetchSize = new Limit(synthetic("<fetch-size>"),
                     new Literal(synthetic("<fetch-value>"), configuration.fetchSize(), DataTypes.INTEGER),
                     p);
 

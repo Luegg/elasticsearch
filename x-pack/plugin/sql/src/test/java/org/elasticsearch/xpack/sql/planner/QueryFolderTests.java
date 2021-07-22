@@ -65,7 +65,7 @@ public class QueryFolderTests extends ESTestCase {
     }
 
     private PhysicalPlan plan(String sql) {
-        return planner.plan(optimizer.optimize(analyzer.analyze(parser.createStatement(sql), true)), true);
+        return planner.plan(optimizer.optimize(analyzer.analyze(parser.createStatement(sql), true)));
     }
 
     public void testFoldingToLocalExecWithProject() {
@@ -532,6 +532,24 @@ public class QueryFolderTests extends ESTestCase {
             assertEquals(pivotQueryContainer.aggs(), groupByQueryContainer.aggs());
             assertEquals(pivotPlan.toString(), groupByPlan.toString());
         }
+    }
+
+    public void testFoldMultipleOffsetWithInnerLimit() {
+        EsQueryExec ee = planAndExpectQueryExec("SELECT * FROM (SELECT * FROM test LIMIT 10 OFFSET 1) OFFSET 2");
+        assertEquals(3, ee.queryContainer().offset());
+        assertEquals(8, ee.queryContainer().limit());
+    }
+
+    public void testFoldMultipleOffsetWithOuterLimit() {
+        EsQueryExec ee = planAndExpectQueryExec("SELECT * FROM (SELECT * FROM test OFFSET 1) LIMIT 10 OFFSET 2");
+        assertEquals(3, ee.queryContainer().offset());
+        assertEquals(10, ee.queryContainer().limit());
+    }
+
+    private EsQueryExec planAndExpectQueryExec(String sql) {
+        PhysicalPlan p = plan(sql);
+        assertEquals(EsQueryExec.class, p.getClass());
+        return (EsQueryExec) p;
     }
 
     private static String randomOrderByAndLimit(int noOfSelectArgs) {

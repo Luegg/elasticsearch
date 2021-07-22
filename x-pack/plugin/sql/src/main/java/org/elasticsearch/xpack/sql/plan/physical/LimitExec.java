@@ -6,7 +6,6 @@
  */
 package org.elasticsearch.xpack.sql.plan.physical;
 
-import org.elasticsearch.xpack.ql.expression.Expression;
 import org.elasticsearch.xpack.ql.tree.NodeInfo;
 import org.elasticsearch.xpack.ql.tree.Source;
 
@@ -14,30 +13,36 @@ import java.util.Objects;
 
 public class LimitExec extends UnaryExec implements Unexecutable {
 
-    private final Expression limit;
+    private final Integer limit;
+    private final int offset;
 
-    public LimitExec(Source source, PhysicalPlan child, Expression limit) {
+    public LimitExec(Source source, PhysicalPlan child, Integer limit, int offset) {
         super(source, child);
         this.limit = limit;
+        this.offset = offset;
     }
 
     @Override
     protected NodeInfo<LimitExec> info() {
-        return NodeInfo.create(this, LimitExec::new, child(), limit);
+        return NodeInfo.create(this, LimitExec::new, child(), limit, offset);
     }
 
     @Override
     protected LimitExec replaceChild(PhysicalPlan newChild) {
-        return new LimitExec(source(), newChild, limit);
+        return new LimitExec(source(), newChild, limit, offset);
     }
 
-    public Expression limit() {
+    public Integer limit() {
         return limit;
+    }
+
+    public int offset() {
+        return offset;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(limit, child());
+        return Objects.hash(limit, offset, child());
     }
 
     @Override
@@ -52,6 +57,7 @@ public class LimitExec extends UnaryExec implements Unexecutable {
 
         LimitExec other = (LimitExec) obj;
         return Objects.equals(limit, other.limit)
+                && Objects.equals(offset, other.offset)
                 && Objects.equals(child(), other.child());
     }
 }

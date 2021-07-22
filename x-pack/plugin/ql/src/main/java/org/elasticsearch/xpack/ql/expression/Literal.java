@@ -22,6 +22,7 @@ public class Literal extends LeafExpression {
     public static final Literal TRUE = new Literal(Source.EMPTY, Boolean.TRUE, DataTypes.BOOLEAN);
     public static final Literal FALSE = new Literal(Source.EMPTY, Boolean.FALSE, DataTypes.BOOLEAN);
     public static final Literal NULL = new Literal(Source.EMPTY, null, DataTypes.NULL);
+    public static final Literal ZERO = new Literal(Source.EMPTY, 0, DataTypes.INTEGER);
 
     private final Object value;
     private final DataType dataType;

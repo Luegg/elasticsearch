@@ -141,7 +141,10 @@ public class Querier {
                 l = new CompositeActionListener(listener, client, cfg, output, query, search);
             }
         } else {
-            search.scroll(keepAlive);
+            if(query.offset() == 0) {
+                // scroll context can only be opened if no "from" (OFFSET) is used
+                search.scroll(keepAlive);
+            }
             l = new ScrollActionListener(listener, client, cfg, output, query);
         }
 

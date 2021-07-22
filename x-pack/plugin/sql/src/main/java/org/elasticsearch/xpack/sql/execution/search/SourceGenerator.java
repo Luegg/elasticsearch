@@ -70,7 +70,7 @@ public abstract class SourceGenerator {
 
         // set page size
         if (size != null) {
-            int sz = container.limit() > 0 ? Math.min(container.limit(), size) : size;
+            int sz = container.hasLimit() ? Math.min(container.limit(), size) : size;
             // now take into account the the minimum page (if set)
             // that is, return the multiple of the minimum page size closer to the set size
             int minSize = container.minPageSize();
@@ -87,6 +87,10 @@ public abstract class SourceGenerator {
                     ((CompositeAggregationBuilder) aggBuilder).size(size);
                 }
             }
+        }
+
+        if (container.offset() > 0) {
+            source.from(container.offset());
         }
 
         optimize(container, source);

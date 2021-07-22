@@ -149,7 +149,7 @@ public class QueryTranslatorTests extends ESTestCase {
         }
 
         private PhysicalPlan optimizeAndPlan(LogicalPlan plan) {
-            return planner.plan(optimizer.optimize(plan),true);
+            return planner.plan(optimizer.optimize(plan));
         }
 
         private LogicalPlan parameterizedSql(String sql, SqlTypedParamValue... params) {

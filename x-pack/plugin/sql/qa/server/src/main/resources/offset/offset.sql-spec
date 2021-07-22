@@ -1,0 +1,50 @@
+offset
+SELECT * FROM test_emp LIMIT 5 OFFSET 10;
+offsetWithWhere
+SELECT * FROM test_emp WHERE gender = 'F' LIMIT 20 OFFSET 5;
+offsetWithOrderBy
+SELECT * FROM test_emp ORDER BY emp_no LIMIT 10 OFFSET 15;
+offsetWithConstProjection
+SELECT 1, 'a' FROM test_emp LIMIT 5 OFFSET 3;
+offsetWithContradiction
+SELECT gender FROM test_emp WHERE 1 = 2 LIMIT 10 OFFSET 2;
+offsetWithFunctions
+SELECT salary + 1 s, CONCAT('hello ', first_name) h, EXP(EXP(EXP(salary))) e FROM test_emp LIMIT 10 OFFSET 3;
+// query currently returns 1 row instead of 0 but fix conflicts with https://github.com/elastic/elasticsearch/pull/74809
+// offsetOnLocalRelation
+// SELECT 1 LIMIT 1 OFFSET 1;
+// offsetOnLocalRelationWithTautology
+// SELECT 1 WHERE true LIMIT 1 OFFSET 1;
+offsetOnLocalRelationWithContradiction
+SELECT 1 WHERE false LIMIT 1 OFFSET 1;
+
+offsetInInnerSelect
+SELECT gender FROM (SELECT gender, languages FROM test_emp LIMIT 2 OFFSET 20);
+offsetInOuterSelect
+SELECT gender FROM (SELECT gender, languages FROM test_emp) LIMIT 2 OFFSET 20;
+
+twoOffsets
+SELECT * FROM (SELECT * FROM test_emp LIMIT 10 OFFSET 1) OFFSET 2;
+// twoOffsetsWithLimit
+// SELECT * FROM (SELECT * FROM test_emp LIMIT 10 OFFSET 1) LIMIT 5 OFFSET 2;
+// twoOffsetsWithOuterLimit
+// SELECT * FROM (SELECT * FROM test_emp OFFSET 1) LIMIT 5 OFFSET 2;
+// twoOffsetsWithFiltersAndInnerLimit
+// SELECT * FROM (SELECT * FROM test_emp WHERE languages = 4 LIMIT 10 OFFSET 1) WHERE gender = 'F' OFFSET 2;
+// twoOffsetsWithFiltersAndOuterLimit
+// SELECT * FROM (SELECT * FROM test_emp WHERE languages = 4 OFFSET 1) WHERE gender = 'F' LIMIT 10 OFFSET 2;
+// twoOffsetsWithOuterFilterAndInnerLimit
+// SELECT * FROM (SELECT * FROM test_emp LIMIT 10 OFFSET 1) WHERE gender = 'F' OFFSET 2;
+// twoOffsetsWithOuterFilterAndOuterLimit
+// SELECT * FROM (SELECT * FROM test_emp OFFSET 1) WHERE gender = 'F' LIMIT 10 OFFSET 2;
+// twoOffsetsWithInnerFilterAndInnerLimit
+// SELECT * FROM (SELECT * FROM test_emp WHERE languages = 4 LIMIT 10 OFFSET 1) OFFSET 2;
+// twoOffsetsWithInnerFiltersAndOuterLimit
+// SELECT * FROM (SELECT * FROM test_emp WHERE languages = 4 OFFSET 1) LIMIT 10 OFFSET 2;
+
+offsetZero
+SELECT * FROM test_emp OFFSET 0;
+offsetZeroWithLimit
+SELECT * FROM test_emp LIMIT 10 OFFSET 0;
+offsetZeroOnLocalRelation
+SELECT 1 OFFSET 0;

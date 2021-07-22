@@ -17,7 +17,7 @@ import org.elasticsearch.xpack.eql.expression.function.EqlFunctionRegistry;
 import org.elasticsearch.xpack.eql.expression.function.scalar.string.ToString;
 import org.elasticsearch.xpack.eql.parser.EqlParser;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.plan.logical.Sequence;
 import org.elasticsearch.xpack.eql.plan.logical.Tail;
 import org.elasticsearch.xpack.eql.plan.physical.LocalRelation;
@@ -279,9 +279,9 @@ public class OptimizerTests extends ESTestCase {
     private void checkOffsetAndLimit(LogicalPlan plan, int offset, int limit) {
         assertTrue(plan instanceof Project);
         plan = ((Project) plan).child();
-        assertTrue(plan instanceof LimitWithOffset);
-        LimitWithOffset lo = (LimitWithOffset) plan;
-        assertEquals("Incorrect offset", offset, lo.offset());
+        assertTrue(plan instanceof Limit);
+        Limit lo = (Limit) plan;
+        assertEquals("Incorrect offset", offset, lo.offset().fold());
         assertEquals("Incorrect limit", limit, lo.limit().fold());
     }
 
@@ -301,8 +301,8 @@ public class OptimizerTests extends ESTestCase {
         Tail t = new Tail(EMPTY, new Literal(EMPTY, 1, INTEGER), o);
 
         LogicalPlan optimized = new Optimizer.SortByLimit().rule(t);
-        assertEquals(LimitWithOffset.class, optimized.getClass());
-        LimitWithOffset l = (LimitWithOffset) optimized;
+        assertEquals(Limit.class, optimized.getClass());
+        Limit l = (Limit) optimized;
         assertOrder(l, OrderDirection.DESC);
     }
 
@@ -739,8 +739,8 @@ public class OptimizerTests extends ESTestCase {
     private static LogicalPlan defaultPipes(LogicalPlan plan) {
         assertTrue(plan instanceof Project);
         plan = ((Project) plan).child();
-        assertTrue(plan instanceof LimitWithOffset);
-        plan = ((LimitWithOffset) plan).child();
+        assertTrue(plan instanceof Limit);
+        plan = ((Limit) plan).child();
         assertTrue(plan instanceof OrderBy);
         return ((OrderBy) plan).child();
     }

@@ -168,6 +168,16 @@ interface SqlBaseListener extends ParseTreeListener {
    */
   void exitQueryNoWith(SqlBaseParser.QueryNoWithContext ctx);
   /**
+   * Enter a parse tree produced by {@link SqlBaseParser#limitSpecification}.
+   * @param ctx the parse tree
+   */
+  void enterLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SqlBaseParser#limitSpecification}.
+   * @param ctx the parse tree
+   */
+  void exitLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx);
+  /**
    * Enter a parse tree produced by {@link SqlBaseParser#limitClause}.
    * @param ctx the parse tree
    */
@@ -177,6 +187,16 @@ interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitLimitClause(SqlBaseParser.LimitClauseContext ctx);
+  /**
+   * Enter a parse tree produced by {@link SqlBaseParser#offsetClause}.
+   * @param ctx the parse tree
+   */
+  void enterOffsetClause(SqlBaseParser.OffsetClauseContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SqlBaseParser#offsetClause}.
+   * @param ctx the parse tree
+   */
+  void exitOffsetClause(SqlBaseParser.OffsetClauseContext ctx);
   /**
    * Enter a parse tree produced by the {@code queryPrimaryDefault}
    * labeled alternative in {@link SqlBaseParser#queryTerm}.

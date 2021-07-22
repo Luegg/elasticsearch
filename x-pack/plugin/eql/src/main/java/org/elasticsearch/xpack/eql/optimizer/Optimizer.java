@@ -15,7 +15,7 @@ import org.elasticsearch.xpack.eql.expression.predicate.operator.comparison.Inse
 import org.elasticsearch.xpack.eql.expression.predicate.operator.comparison.InsensitiveWildcardNotEquals;
 import org.elasticsearch.xpack.eql.plan.logical.Join;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.plan.physical.LocalRelation;
 import org.elasticsearch.xpack.eql.session.Payload.Type;
 import org.elasticsearch.xpack.eql.util.MathUtils;
@@ -53,7 +53,6 @@ import org.elasticsearch.xpack.ql.optimizer.OptimizerRules.SetAsOptimized;
 import org.elasticsearch.xpack.ql.optimizer.OptimizerRules.SimplifyComparisonsArithmetics;
 import org.elasticsearch.xpack.ql.optimizer.OptimizerRules.TransformDirection;
 import org.elasticsearch.xpack.ql.plan.logical.Filter;
-import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.ql.plan.logical.LogicalPlan;
 import org.elasticsearch.xpack.ql.plan.logical.OrderBy;
 import org.elasticsearch.xpack.ql.plan.logical.UnaryPlan;
@@ -253,28 +252,29 @@ public class Optimizer extends RuleExecutor<LogicalPlan> {
      * The rules moves up since the first limit is the one that defines whether it's the head (positive) or
      * the tail (negative) limit of the data and the rest simply work in this space.
      */
-    static final class CombineLimits extends OptimizerRule<LimitWithOffset> {
+    static final class CombineLimits extends OptimizerRule<Limit> {
 
         CombineLimits() {
             super(TransformDirection.UP);
         }
 
         @Override
-        protected LogicalPlan rule(LimitWithOffset limit) {
+        protected LogicalPlan rule(Limit limit) {
             // bail out early
-            if (limit.child() instanceof LimitWithOffset == false) {
+            if (limit.child() instanceof Limit == false) {
                 return limit;
             }
 
-            LimitWithOffset primary = (LimitWithOffset) limit.child();
+            Limit primary = (Limit) limit.child();
 
             int primaryLimit = (Integer) primary.limit().fold();
-            int primaryOffset = primary.offset();
+            int primaryOffset = (Integer) primary.offset().fold();
             // +1 means ASC, -1 descending and 0 if there are no results
             int sign = Integer.signum(primaryLimit);
 
             int secondaryLimit = (Integer) limit.limit().fold();
-            if (limit.offset() != 0) {
+            int secondaryOffset = (Integer) limit.offset().fold();
+            if (secondaryOffset != 0) {
                 throw new EqlIllegalArgumentException("Limits with different offset not implemented yet");
             }
 
@@ -293,8 +293,9 @@ public class Optimizer extends RuleExecutor<LogicalPlan> {
                 }
             }
 
-            Literal literal = new Literal(primary.limit().source(), primaryLimit, DataTypes.INTEGER);
-            return new LimitWithOffset(primary.source(), literal, primaryOffset, primary.child());
+            Literal limitLiteral = new Literal(primary.limit().source(), primaryLimit, DataTypes.INTEGER);
+            Literal offsetLiteral = new Literal(primary.offset().source(), primaryOffset, DataTypes.INTEGER);
+            return new Limit(primary.source(), limitLiteral, offsetLiteral, primary.child());
         }
     }
 
@@ -396,10 +397,10 @@ public class Optimizer extends RuleExecutor<LogicalPlan> {
     /**
      * Align the implicit order with the limit (head means ASC or tail means DESC).
      */
-    static final class SortByLimit extends OptimizerRule<LimitWithOffset> {
+    static final class SortByLimit extends OptimizerRule<Limit> {
 
         @Override
-        protected LogicalPlan rule(LimitWithOffset limit) {
+        protected LogicalPlan rule(Limit limit) {
             if (limit.limit().foldable()) {
                 LogicalPlan child = limit.child();
                 if (child instanceof OrderBy) {
@@ -408,7 +409,7 @@ public class Optimizer extends RuleExecutor<LogicalPlan> {
                         int l = (Integer) limit.limit().fold();
                         OrderDirection direction = Integer.signum(l) > 0 ? OrderDirection.ASC : OrderDirection.DESC;
                         ob = new OrderBy(ob.source(), ob.child(), PushDownOrderBy.changeOrderDirection(ob.order(), direction));
-                        limit = new LimitWithOffset(limit.source(), limit.limit(), limit.offset(), ob);
+                        limit = new Limit(limit.source(), limit.limit(), limit.offset(), ob);
                     }
                 }
             }

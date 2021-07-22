@@ -9,6 +9,7 @@ package org.elasticsearch.xpack.sql.planner;
 import org.elasticsearch.xpack.ql.common.Failure;
 import org.elasticsearch.xpack.ql.expression.Order;
 import org.elasticsearch.xpack.ql.util.Holder;
+import org.elasticsearch.xpack.sql.plan.physical.EsQueryExec;
 import org.elasticsearch.xpack.sql.plan.physical.LimitExec;
 import org.elasticsearch.xpack.sql.plan.physical.OrderExec;
 import org.elasticsearch.xpack.sql.plan.physical.PhysicalPlan;
@@ -41,10 +42,12 @@ abstract class Verifier {
         return failures;
     }
 
-    static List<Failure> verifyExecutingPlan(PhysicalPlan plan) {
+    static List<Failure> verifyExecutingPlan(PhysicalPlan plan, int pageSize) {
         List<Failure> failures = new ArrayList<>();
 
         plan.forEachUp(p -> {
+            checkForValidLimitWithOffset(p, pageSize, failures);
+
             if (p instanceof Unexecutable) {
                 failures.add(fail(p, "Unexecutable item"));
             }
@@ -62,17 +65,28 @@ abstract class Verifier {
         Holder<Boolean> hasLimit = new Holder<>(Boolean.FALSE);
         Holder<List<Order>> orderBy = new Holder<>();
         plan.forEachUp(p -> {
-            if (hasLimit.get() == false && p instanceof LimitExec) {
+            if (hasLimit.get() == false && (p instanceof LimitExec)) {
                 hasLimit.set(Boolean.TRUE);
                 return;
             }
             if (p instanceof OrderExec) {
                 if (hasLimit.get() && orderBy.get() != null && ((OrderExec) p).order().equals(orderBy.get()) == false) {
-                    failures.add(fail(p, "Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT"));
+                    failures.add(fail(p, "Cannot use ORDER BY on top of a subquery with ORDER BY and LIMIT/OFFSET"));
                 } else {
                     orderBy.set(((OrderExec) p).order());
                 }
             }
         });
+    }
+
+    private static void checkForValidLimitWithOffset(PhysicalPlan plan, int pageSize, List<Failure> failures) {
+        if (plan instanceof EsQueryExec) {
+            EsQueryExec queryExec = (EsQueryExec) plan;
+            if (queryExec.queryContainer().offset() > 0) {
+                if (queryExec.queryContainer().limit() > pageSize || queryExec.queryContainer().hasLimit() == false) {
+                    failures.add(fail(plan, "Query must specify a LIMIT < fetch_size if OFFSET is used"));
+                }
+            }
+        }
     }
 }

@@ -115,7 +115,21 @@ class SqlBaseBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SqlBa
    * <p>The default implementation returns the result of calling
    * {@link #visitChildren} on {@code ctx}.</p>
    */
+  @Override public T visitLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx) { return visitChildren(ctx); }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling
+   * {@link #visitChildren} on {@code ctx}.</p>
+   */
   @Override public T visitLimitClause(SqlBaseParser.LimitClauseContext ctx) { return visitChildren(ctx); }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling
+   * {@link #visitChildren} on {@code ctx}.</p>
+   */
+  @Override public T visitOffsetClause(SqlBaseParser.OffsetClauseContext ctx) { return visitChildren(ctx); }
   /**
    * {@inheritDoc}
    *

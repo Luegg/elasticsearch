@@ -116,7 +116,7 @@ public class Explain extends Command {
                         return;
                     }
 
-                    PhysicalPlan executablePlan = planner.foldPlan(mappedPlan, verify);
+                    PhysicalPlan executablePlan = planner.foldPlan(mappedPlan, verify, Integer.MAX_VALUE);
                     if (type == Type.EXECUTABLE) {
                         listener.onResponse(Page.last(Rows.singleton(output(), formatPlan(format, executablePlan))));
                         return;
@@ -146,7 +146,7 @@ public class Explain extends Command {
                         }
 
                         if (planner.verifyMappingPlanFailures(mappedPlan).isEmpty()) {
-                            PhysicalPlan executablePlan = planner.foldPlan(mappedPlan, verify);
+                            PhysicalPlan executablePlan = planner.foldPlan(mappedPlan, verify, Integer.MAX_VALUE);
 
                             if (type == Type.EXECUTABLE) {
                                 listener.onResponse(Page.last(Rows.singleton(output(), formatPlan(format, executablePlan))));

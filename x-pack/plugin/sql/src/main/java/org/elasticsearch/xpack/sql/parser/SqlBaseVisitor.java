@@ -105,11 +105,23 @@ interface SqlBaseVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitQueryNoWith(SqlBaseParser.QueryNoWithContext ctx);
   /**
+   * Visit a parse tree produced by {@link SqlBaseParser#limitSpecification}.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx);
+  /**
    * Visit a parse tree produced by {@link SqlBaseParser#limitClause}.
    * @param ctx the parse tree
    * @return the visitor result
    */
   T visitLimitClause(SqlBaseParser.LimitClauseContext ctx);
+  /**
+   * Visit a parse tree produced by {@link SqlBaseParser#offsetClause}.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitOffsetClause(SqlBaseParser.OffsetClauseContext ctx);
   /**
    * Visit a parse tree produced by the {@code queryPrimaryDefault}
    * labeled alternative in {@link SqlBaseParser#queryTerm}.

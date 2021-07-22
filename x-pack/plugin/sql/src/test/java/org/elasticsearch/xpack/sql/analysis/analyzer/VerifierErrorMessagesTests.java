@@ -26,6 +26,8 @@ import org.elasticsearch.xpack.sql.expression.predicate.conditional.Least;
 import org.elasticsearch.xpack.sql.expression.predicate.conditional.NullIf;
 import org.elasticsearch.xpack.sql.parser.SqlParser;
 import org.elasticsearch.xpack.sql.stats.Metrics;
+import org.hamcrest.Matchers;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -1364,7 +1367,7 @@ public class VerifierErrorMessagesTests extends ESTestCase {
     public void testNestedAggregate() {
         Consumer<String> checkMsg = (String sql) -> {
             var actual = error(sql);
-            assertTrue(actual, actual.contains("Nested aggregations in sub-selects are not supported."));
+            assertThat(actual, Matchers.containsString("Nested aggregations in sub-selects are not supported."));
         };
 
         checkMsg.accept("SELECT SUM(c) FROM (SELECT COUNT(*) c FROM test)");
@@ -1373,6 +1376,23 @@ public class VerifierErrorMessagesTests extends ESTestCase {
         checkMsg.accept("SELECT c FROM (SELECT SUM(int) c FROM test) GROUP BY c HAVING COUNT(*) > 10");
         checkMsg.accept("SELECT COUNT(*) FROM (SELECT int i FROM test GROUP BY i)");
         checkMsg.accept("SELECT a.i, COUNT(a.c) FROM (SELECT int i, COUNT(int) c FROM test GROUP BY int) a GROUP BY c");
+    }
+
+    public void testOffsetOnAggregate() {
+        Consumer<String> checkMsg = (String sql) -> {
+            var actual = error(sql);
+            assertThat(actual, Matchers.containsString("OFFSET cannot be used with aggregations or GROUP BY"));
+        };
+
+        Supplier<String> randomLimitAndOffset = () -> "LIMIT " + randomInt(Integer.MAX_VALUE) + " OFFSET " + randomInt(Integer.MAX_VALUE);
+
+        checkMsg.accept("SELECT SUM(int) FROM test " + randomLimitAndOffset.get());
+        checkMsg.accept("SELECT COUNT(*) FROM test " + randomLimitAndOffset.get());
+        checkMsg.accept("SELECT int FROM test GROUP BY int " + randomLimitAndOffset.get());
+        checkMsg.accept("SELECT bool FROM test GROUP BY bool HAVING COUNT(*) > 10 " + randomLimitAndOffset.get());
+        checkMsg.accept("SELECT c FROM (SELECT COUNT(*) c FROM test) " + randomLimitAndOffset.get());
+        checkMsg.accept("SELECT c FROM (SELECT COUNT(*) c FROM test " + randomLimitAndOffset.get() + " )");
+        checkMsg.accept("SELECT int FROM (SELECT int FROM test " + randomLimitAndOffset.get() + ") GROUP BY int");
     }
 
     private String randomTopHitsFunction() {

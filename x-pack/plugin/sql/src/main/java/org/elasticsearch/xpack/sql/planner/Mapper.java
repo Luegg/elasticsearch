@@ -7,6 +7,7 @@
 package org.elasticsearch.xpack.sql.planner;
 
 import org.elasticsearch.xpack.ql.expression.Attribute;
+import org.elasticsearch.xpack.ql.expression.Foldables;
 import org.elasticsearch.xpack.ql.plan.logical.Aggregate;
 import org.elasticsearch.xpack.ql.plan.logical.EsRelation;
 import org.elasticsearch.xpack.ql.plan.logical.Filter;
@@ -16,6 +17,7 @@ import org.elasticsearch.xpack.ql.plan.logical.OrderBy;
 import org.elasticsearch.xpack.ql.plan.logical.Project;
 import org.elasticsearch.xpack.ql.rule.Rule;
 import org.elasticsearch.xpack.ql.rule.RuleExecutor;
+import org.elasticsearch.xpack.ql.type.DataTypes;
 import org.elasticsearch.xpack.ql.util.ReflectionUtils;
 import org.elasticsearch.xpack.sql.plan.logical.Join;
 import org.elasticsearch.xpack.sql.plan.logical.LocalRelation;
@@ -34,6 +36,7 @@ import org.elasticsearch.xpack.sql.plan.physical.PivotExec;
 import org.elasticsearch.xpack.sql.plan.physical.ProjectExec;
 import org.elasticsearch.xpack.sql.plan.physical.UnplannedExec;
 import org.elasticsearch.xpack.sql.querydsl.container.QueryContainer;
+import org.elasticsearch.xpack.sql.type.SqlDataTypeConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -108,8 +111,11 @@ class Mapper extends RuleExecutor<PhysicalPlan> {
 
             if (p instanceof Limit) {
                 Limit l = (Limit) p;
-                return new LimitExec(p.source(), map(l.child()), l.limit());
+                Integer limit = (Integer) SqlDataTypeConverter.convert(Foldables.valueOf(l.limit()), DataTypes.INTEGER);
+                Integer offset = (Integer) SqlDataTypeConverter.convert(Foldables.valueOf(l.offset()), DataTypes.INTEGER);
+                return new LimitExec(p.source(), map(l.child()), limit, offset);
             }
+
             // TODO: Translate With in a subplan
             if (p instanceof With) {
                 throw new UnsupportedOperationException("With should have been translated already");

@@ -14,7 +14,7 @@ import org.elasticsearch.xpack.ql.plan.logical.LogicalPlan;
 import org.elasticsearch.xpack.ql.tree.NodeInfo;
 import org.elasticsearch.xpack.ql.tree.Source;
 
-public class Tail extends LimitWithOffset {
+public class Tail extends Limit {
 
     public Tail(Source source, Expression limit, LogicalPlan child) {
         this(source, child, new Neg(limit.source(), limit));

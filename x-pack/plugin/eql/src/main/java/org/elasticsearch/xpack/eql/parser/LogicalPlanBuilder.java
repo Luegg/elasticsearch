@@ -25,7 +25,7 @@ import org.elasticsearch.xpack.eql.parser.EqlBaseParser.SubqueryContext;
 import org.elasticsearch.xpack.eql.plan.logical.Head;
 import org.elasticsearch.xpack.eql.plan.logical.Join;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.plan.logical.Sequence;
 import org.elasticsearch.xpack.eql.plan.logical.Tail;
 import org.elasticsearch.xpack.eql.plan.physical.LocalRelation;
@@ -117,7 +117,7 @@ public abstract class LogicalPlanBuilder extends ExpressionBuilder {
 
         for (PipeContext pipeCtx : ctx.pipe()) {
             plan = pipe(pipeCtx, previous);
-            if (missingLimit && plan instanceof LimitWithOffset) {
+            if (missingLimit && plan instanceof Limit) {
                 missingLimit = false;
                 if (plan instanceof Head) {
                     previous = new Head(defaultLimitSource, defaultSize, previous);

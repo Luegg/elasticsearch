@@ -165,7 +165,7 @@ public class SqlSession implements Session {
     }
 
     public void physicalPlan(LogicalPlan optimized, boolean verify, ActionListener<PhysicalPlan> listener) {
-        optimizedPlan(optimized, wrap(o -> listener.onResponse(planner.plan(o, verify)), listener::onFailure));
+        optimizedPlan(optimized, wrap(o -> listener.onResponse(planner.plan(o, verify, configuration().pageSize())), listener::onFailure));
     }
 
     public void sql(String sql, List<SqlTypedParamValue> params, ActionListener<Page> listener) {

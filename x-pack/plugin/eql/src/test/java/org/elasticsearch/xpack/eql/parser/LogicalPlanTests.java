@@ -13,7 +13,7 @@ import org.elasticsearch.xpack.eql.action.RequestDefaults;
 import org.elasticsearch.xpack.eql.plan.logical.Head;
 import org.elasticsearch.xpack.eql.plan.logical.Join;
 import org.elasticsearch.xpack.eql.plan.logical.KeyedFilter;
-import org.elasticsearch.xpack.eql.plan.logical.LimitWithOffset;
+import org.elasticsearch.xpack.ql.plan.logical.Limit;
 import org.elasticsearch.xpack.eql.plan.logical.Sequence;
 import org.elasticsearch.xpack.eql.plan.physical.LocalRelation;
 import org.elasticsearch.xpack.ql.expression.Attribute;
@@ -187,8 +187,8 @@ public class LogicalPlanTests extends ESTestCase {
     }
 
     private LogicalPlan defaultPipes(LogicalPlan plan) {
-        assertTrue(plan instanceof LimitWithOffset);
-        plan = ((LimitWithOffset) plan).child();
+        assertTrue(plan instanceof Limit);
+        plan = ((Limit) plan).child();
         assertTrue(plan instanceof OrderBy);
         return ((OrderBy) plan).child();
     }

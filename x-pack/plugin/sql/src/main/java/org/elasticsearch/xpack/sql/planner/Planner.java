@@ -22,11 +22,11 @@ public class Planner {
     private final QueryFolder folder = new QueryFolder();
 
     public PhysicalPlan plan(LogicalPlan plan) {
-        return plan(plan, true);
+        return plan(plan, true, Integer.MAX_VALUE);
     }
 
-    public PhysicalPlan plan(LogicalPlan plan, boolean verify) {
-        return foldPlan(mapPlan(plan, verify), verify);
+    public PhysicalPlan plan(LogicalPlan plan, boolean verify, int pageSize) {
+        return foldPlan(mapPlan(plan, verify), verify, pageSize);
     }
 
     // first, map the logical plan
@@ -35,8 +35,8 @@ public class Planner {
     }
 
     // second, pack it up
-    public PhysicalPlan foldPlan(PhysicalPlan mapped, boolean verify) {
-        return verify ? verifyExecutingPlan(folder.fold(mapped)) : folder.fold(mapped);
+    public PhysicalPlan foldPlan(PhysicalPlan mapped, boolean verify, int pageSize) {
+        return verify ? verifyExecutingPlan(folder.fold(mapped), pageSize) : folder.fold(mapped);
     }
 
     // verify the mapped plan
@@ -53,16 +53,16 @@ public class Planner {
         return failures.stream().collect(toMap(Failure::node, Failure::message));
     }
 
-    public PhysicalPlan verifyExecutingPlan(PhysicalPlan plan) {
-        List<Failure> failures = Verifier.verifyExecutingPlan(plan);
+    public PhysicalPlan verifyExecutingPlan(PhysicalPlan plan, int pageSize) {
+        List<Failure> failures = Verifier.verifyExecutingPlan(plan, pageSize);
         if (failures.isEmpty() == false) {
             throw new PlanningException(failures);
         }
         return plan;
     }
 
-    public Map<Node<?>, String> verifyExecutingPlanFailures(PhysicalPlan plan) {
-        List<Failure> failures = Verifier.verifyExecutingPlan(plan);
+    public Map<Node<?>, String> verifyExecutingPlanFailures(PhysicalPlan plan, int pageSize) {
+        List<Failure> failures = Verifier.verifyExecutingPlan(plan, pageSize);
         return failures.stream().collect(toMap(Failure::node, Failure::message));
     }
 }

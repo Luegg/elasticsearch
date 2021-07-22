@@ -35,6 +35,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.startsWith;
 
 public class SqlParserTests extends ESTestCase {
@@ -139,12 +140,43 @@ public class SqlParserTests extends ESTestCase {
         assertEquals(30, ((Limit) child).limit().fold());
     }
 
-    public void testUseBothTopAndLimitInvalid() {
-        ParsingException e = expectThrows(ParsingException.class, () -> parseStatement("SELECT TOP 10 * FROM test LIMIT 20"));
-        assertEquals("line 1:28: TOP and LIMIT are not allowed in the same query - use one or the other", e.getMessage());
-        e = expectThrows(ParsingException.class,
-            () -> parseStatement("SELECT TOP 30 a, count(*) cnt FROM test WHERE b = 20 GROUP BY a HAVING cnt > 10 LIMIT 40"));
-        assertEquals("line 1:82: TOP and LIMIT are not allowed in the same query - use one or the other", e.getMessage());
+    public void testUseBothTopAndLimitOffsetInvalid() {
+        for (String invalidStatement : Arrays.asList(
+            "SELECT TOP 10 * FROM test LIMIT 20",
+            "SELECT TOP 10 * FROM test OFFSET 20",
+            "SELECT TOP 30 a, count(*) cnt FROM test WHERE b = 20 GROUP BY a HAVING cnt > 10 LIMIT 40"
+        )) {
+            ParsingException e = expectThrows(ParsingException.class, () -> parseStatement(invalidStatement));
+
+            assertThat(
+                e.getMessage(),
+                matchesPattern("line 1:[0-9]+: TOP and LIMIT/OFFSET are not allowed in the same query - use one or the other")
+            );
+        }
+    }
+
+    public void testOffset() {
+        int offset = randomIntBetween(0, Integer.MAX_VALUE);
+        LogicalPlan plan = parseStatement("SELECT * FROM test OFFSET " + offset);
+        assertEquals(With.class, plan.getClass());
+        LogicalPlan child = ((With) plan).child();
+        assertEquals(Limit.class, child.getClass());
+        assertEquals(offset, ((Limit) child).offset().fold());
+    }
+
+    public void testLimitOffset() {
+        for (String sql : Arrays.asList(
+            "SELECT * FROM test LIMIT 100 OFFSET 10",
+            "SELECT * FROM test { LIMIT 100 OFFSET 10 }"
+        )) {
+            LogicalPlan plan = parseStatement(sql);
+            assertEquals(With.class, plan.getClass());
+            With with = ((With) plan);
+            assertEquals(Limit.class, with.child().getClass());
+            Limit limit = (Limit) with.child();
+            assertEquals(100, limit.limit().fold());
+            assertEquals(10, limit.offset().fold());
+        }
     }
 
     public void testsSelectNonReservedKeywords() {

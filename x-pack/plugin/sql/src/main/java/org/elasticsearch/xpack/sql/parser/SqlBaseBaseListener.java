@@ -184,6 +184,18 @@ class SqlBaseBaseListener implements SqlBaseListener {
    *
    * <p>The default implementation does nothing.</p>
    */
+  @Override public void enterLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void exitLimitSpecification(SqlBaseParser.LimitSpecificationContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
   @Override public void enterLimitClause(SqlBaseParser.LimitClauseContext ctx) { }
   /**
    * {@inheritDoc}
@@ -191,6 +203,18 @@ class SqlBaseBaseListener implements SqlBaseListener {
    * <p>The default implementation does nothing.</p>
    */
   @Override public void exitLimitClause(SqlBaseParser.LimitClauseContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void enterOffsetClause(SqlBaseParser.OffsetClauseContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void exitOffsetClause(SqlBaseParser.OffsetClauseContext ctx) { }
   /**
    * {@inheritDoc}
    *

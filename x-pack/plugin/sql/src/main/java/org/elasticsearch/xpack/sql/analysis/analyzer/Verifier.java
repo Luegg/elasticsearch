@@ -214,7 +214,8 @@ public final class Verifier {
                 checkFilterOnAggs(p, localFailures, attributeRefs);
                 checkFilterOnGrouping(p, localFailures, attributeRefs);
 
-                checkNestedAggregation(p, localFailures, attributeRefs);
+                checkNestedAggregation(p, localFailures);
+                checkOffsetWithAggregations(p, plan, localFailures);
 
                 if (groupingFailures.contains(p) == false) {
                     checkGroupBy(p, localFailures, attributeRefs, groupingFailures);
@@ -268,13 +269,19 @@ public final class Verifier {
         return failures;
     }
 
-    private void checkNestedAggregation(LogicalPlan p, Set<Failure> localFailures, AttributeMap<Expression> attributeRefs) {
+    private void checkNestedAggregation(LogicalPlan p, Set<Failure> localFailures) {
         if (p instanceof Aggregate) {
             ((Aggregate) p).child()
                 .forEachDown(
                     Aggregate.class,
                     a -> { localFailures.add(fail(a, "Nested aggregations in sub-selects are not supported.")); }
                 );
+        }
+    }
+
+    private void checkOffsetWithAggregations(LogicalPlan p, LogicalPlan root, Set<Failure> localFailures) {
+        if (p instanceof Limit && ((Integer) ((Limit) p).offset().fold()) > 0) {
+            root.forEachDown(Aggregate.class, a -> localFailures.add(fail(p, "OFFSET cannot be used with aggregations or GROUP BY")));
         }
     }
 

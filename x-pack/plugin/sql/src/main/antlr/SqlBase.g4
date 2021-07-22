@@ -72,14 +72,22 @@ queryNoWith
     : queryTerm
     /** we could add sort by - sort per partition */
       (ORDER BY orderBy (',' orderBy)*)?
-      limitClause?
+      limitSpecification?
+    ;
+
+limitSpecification
+    : (limitClause offsetClause?)
+    | (offsetClause)
+    | (ESC_START limitClause offsetClause? ESC_END)
     ;
 
 limitClause
-    : LIMIT limit=(INTEGER_VALUE | ALL)                                                                   
-    | LIMIT_ESC limit=(INTEGER_VALUE | ALL) ESC_END                                              
+    : LIMIT limit=(INTEGER_VALUE | ALL)
     ;
-    
+
+offsetClause
+    : OFFSET INTEGER_VALUE ;
+
 queryTerm
     : querySpecification                   #queryPrimaryDefault
     | '(' queryNoWith  ')'                 #subquery
@@ -449,6 +457,7 @@ NATURAL: 'NATURAL';
 NOT: 'NOT';
 NULL: 'NULL';
 NULLS: 'NULLS';
+OFFSET: 'OFFSET';
 ON: 'ON';
 OPTIMIZED: 'OPTIMIZED';
 OR: 'OR';
@@ -487,7 +496,6 @@ YEARS: 'YEARS';
 // Escaped Sequence
 ESCAPE_ESC: ESC_START 'ESCAPE';
 FUNCTION_ESC: ESC_START 'FN';
-LIMIT_ESC: ESC_START 'LIMIT';
 DATE_ESC: ESC_START 'D';
 TIME_ESC: ESC_START 'T';
 TIMESTAMP_ESC: ESC_START 'TS';
