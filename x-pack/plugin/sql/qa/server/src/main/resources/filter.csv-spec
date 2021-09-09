@@ -25,7 +25,7 @@ Parviz
 whereFieldWithNotRLikeMatch
 SELECT last_name, first_name FROM "test_emp" WHERE emp_no < 10020 AND first_name NOT RLIKE 'Ma.*' ORDER BY first_name LIMIT 5;
 
-  last_name:s  | first_name:s 
+  last_name:s  | first_name:s
 ---------------+---------------
 Preusig        |Anneke
 Genin          |Berni
@@ -71,25 +71,25 @@ Zielinski      |F
 whereFieldWithRLikeAndGroupByOrderBy
 SELECT last_name l, gender g, COUNT(*) c, MAX(salary) AS sal FROM "test_emp" WHERE emp_no < 10050 AND (last_name RLIKE 'B.*' OR gender = 'F') GROUP BY g, l ORDER BY sal;
 
-     l:s       |      g:s      |      c:l      |    sal:i      
+     l:s       |      g:s      |      c:l      |    sal:i
 ---------------+---------------+---------------+---------------
-Berztiss       |M              |1              |28336        
-Stamatiou      |F              |1              |30404        
-Brender        |M              |1              |36051        
-Meriste        |F              |1              |37112        
-Tramer         |F              |1              |37853       
-Casley         |F              |1              |39728        
-Montemayor     |F              |1              |47896        
-Bridgland      |null           |1              |48942        
-Simmel         |F              |1              |56371        
-Lenart         |F              |1              |56415        
-Bouloucos      |null           |1              |58715        
-Preusig        |F              |1              |60335        
-Bamford        |M              |1              |61805        
-Pettey         |F              |1              |64675        
-Peac           |F              |1              |66174        
-Reistad        |F              |2              |73851        
-Zielinski      |F              |1              |74572        
+Berztiss       |M              |1              |28336
+Stamatiou      |F              |1              |30404
+Brender        |M              |1              |36051
+Meriste        |F              |1              |37112
+Tramer         |F              |1              |37853
+Casley         |F              |1              |39728
+Montemayor     |F              |1              |47896
+Bridgland      |null           |1              |48942
+Simmel         |F              |1              |56371
+Lenart         |F              |1              |56415
+Bouloucos      |null           |1              |58715
+Preusig        |F              |1              |60335
+Bamford        |M              |1              |61805
+Pettey         |F              |1              |64675
+Peac           |F              |1              |66174
+Reistad        |F              |2              |73851
+Zielinski      |F              |1              |74572
 ;
 
 whereFieldWithRLikeAndNotRLike
@@ -164,9 +164,9 @@ SELECT COUNT(*) AS c, LEFT(name, 1) AS first_letter FROM test_emp WHERE first_le
 
        c:l     |first_letter:s
 ---------------+--------------
-1              |X              
-3              |Y              
-2              |Z              
+1              |X
+3              |Y
+2              |Z
 ;
 
 inWithConcat
@@ -174,7 +174,7 @@ SELECT COUNT(*) AS c, LEFT(CONCAT(first_name, last_name), 1) AS first_letter FRO
 
        c:l     |first_letter:s
 ---------------+--------------
-1              |X              
-3              |Y              
-2              |Z                            
+1              |X
+3              |Y
+2              |Z
 ;

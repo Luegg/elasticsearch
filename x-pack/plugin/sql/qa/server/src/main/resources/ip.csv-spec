@@ -24,48 +24,48 @@ SELECT * FROM logs ORDER BY id LIMIT 10;
 selectIpField
 SELECT client_ip, dest_ip FROM logs ORDER BY id LIMIT 10;
 
-   client_ip   |    dest_ip    
+   client_ip   |    dest_ip
 ---------------+---------------
-10.0.1.1       |172.27.1.129   
-10.0.1.1       |172.27.1.123   
-10.0.1.1       |172.27.1.113   
-10.0.1.1       |172.27.1.116   
-10.0.1.1       |172.27.1.149   
-10.0.1.1       |172.27.1.122   
-10.0.1.7       |172.27.1.140   
-10.0.1.8       |null           
-10.0.1.9       |null           
-10.0.1.10      |null   
+10.0.1.1       |172.27.1.129
+10.0.1.1       |172.27.1.123
+10.0.1.1       |172.27.1.113
+10.0.1.1       |172.27.1.116
+10.0.1.1       |172.27.1.149
+10.0.1.1       |172.27.1.122
+10.0.1.7       |172.27.1.140
+10.0.1.8       |null
+10.0.1.9       |null
+10.0.1.10      |null
 ;
 
 orderByIpv4Field
 SELECT client_ip, dest_ip FROM logs ORDER BY client_ip LIMIT 5;
 
-   client_ip   |           dest_ip            
+   client_ip   |           dest_ip
 ---------------+------------------------------
-10.0.0.105     |172.27.1.1                    
-10.0.0.107     |172.20.10.8                   
+10.0.0.105     |172.27.1.1
+10.0.0.107     |172.20.10.8
 10.0.0.109     |2001:cafe::470f:60b7:f84a:25b6
-10.0.0.113     |90.128.199.24                 
-10.0.0.118     |172.27.1.1      
+10.0.0.113     |90.128.199.24
+10.0.0.118     |172.27.1.1
 ;
 
 orderByIpv6Field
 SELECT client_ip, dest_ip FROM logs ORDER BY dest_ip ASC LIMIT 5;
 
-   client_ip:s |           dest_ip:s            
+   client_ip:s |           dest_ip:s
 ---------------+------------------------------
-null           |27.58.6.220    
-10.0.0.147     |90.128.199.24  
-10.0.0.113     |90.128.199.24  
-10.0.0.129     |172.16.1.1     
-10.0.1.177     |172.20.10.1 
+null           |27.58.6.220
+10.0.0.147     |90.128.199.24
+10.0.0.113     |90.128.199.24
+10.0.0.129     |172.16.1.1
+10.0.1.177     |172.20.10.1
 ;
 
 filterExactMatchIpv4
 SELECT id, client_ip, dest_ip FROM logs WHERE client_ip = '10.0.1.166' ORDER BY id LIMIT 5;
 
-      id       |   client_ip   |           dest_ip            
+      id       |   client_ip   |           dest_ip
 ---------------+---------------+------------------------------
 22             |10.0.1.166     |2001:cafe::ff07:bdcc:bc59:ff9f
 24             |10.0.1.166     |2001:cafe::13e1:16fc:8726:1bf8
@@ -97,7 +97,7 @@ SELECT id, client_ip, dest_ip FROM logs WHERE CAST(dest_ip AS STRING) IN ('172.1
 filterExactMatchIpv6
 SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip = 'fe80::86ba:3bff:fe05:c3f3' ORDER BY id LIMIT 10;
 
-      id       |   client_ip   |         dest_ip         
+      id       |   client_ip   |         dest_ip
 ---------------+---------------+-------------------------
 19             |10.0.1.13      |fe80::86ba:3bff:fe05:c3f3
 ;
@@ -106,36 +106,36 @@ SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip = 'fe80::86ba:3bff:fe05:c3
 filterRangeIpv4
 SELECT id, client_ip, dest_ip FROM logs WHERE client_ip BETWEEN '10.0.1.1' AND '10.0.1.200' ORDER BY id LIMIT 10;
 
-      id       |   client_ip   |    dest_ip    
+      id       |   client_ip   |    dest_ip
 ---------------+---------------+---------------
-1              |10.0.1.1       |172.27.1.129   
-2              |10.0.1.1       |172.27.1.123   
-3              |10.0.1.1       |172.27.1.113   
-4              |10.0.1.1       |172.27.1.116   
-5              |10.0.1.1       |172.27.1.149   
-6              |10.0.1.1       |172.27.1.122   
-7              |10.0.1.7       |172.27.1.140   
-8              |10.0.1.8       |null           
-9              |10.0.1.9       |null           
-10             |10.0.1.10      |null    
+1              |10.0.1.1       |172.27.1.129
+2              |10.0.1.1       |172.27.1.123
+3              |10.0.1.1       |172.27.1.113
+4              |10.0.1.1       |172.27.1.116
+5              |10.0.1.1       |172.27.1.149
+6              |10.0.1.1       |172.27.1.122
+7              |10.0.1.7       |172.27.1.140
+8              |10.0.1.8       |null
+9              |10.0.1.9       |null
+10             |10.0.1.10      |null
 ;
 
 filterRangeCIDRIpv4
 SELECT id, client_ip, dest_ip FROM logs WHERE client_ip = '10.0.0.0/16' ORDER BY id LIMIT 5;
 
-      id       |   client_ip   |    dest_ip    
+      id       |   client_ip   |    dest_ip
 ---------------+---------------+---------------
-1              |10.0.1.1       |172.27.1.129   
-2              |10.0.1.1       |172.27.1.123   
-3              |10.0.1.1       |172.27.1.113   
-4              |10.0.1.1       |172.27.1.116   
-5              |10.0.1.1       |172.27.1.149   
+1              |10.0.1.1       |172.27.1.129
+2              |10.0.1.1       |172.27.1.123
+3              |10.0.1.1       |172.27.1.113
+4              |10.0.1.1       |172.27.1.116
+5              |10.0.1.1       |172.27.1.149
 ;
 
 filterRangeCIDRIpv6
 SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip = '2001:cafe::/48' ORDER BY id LIMIT 5;
 
-      id       |   client_ip   |           dest_ip            
+      id       |   client_ip   |           dest_ip
 ---------------+---------------+------------------------------
 20             |10.0.1.199     |2001:cafe::ff07:bdcc:bc59:ff9f
 22             |10.0.1.166     |2001:cafe::ff07:bdcc:bc59:ff9f
@@ -150,7 +150,7 @@ SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip = '2001:cafe::/48' ORDER B
 filterInCIDRIpv4-Ignore
 SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip IN ('10.0.1.1', '10.0.1.200', '10.0.0.0/16') ORDER BY id LIMIT 10;
 
-      id       |   client_ip   |           dest_ip            
+      id       |   client_ip   |           dest_ip
 ---------------+---------------+------------------------------
 20             |10.0.1.199     |2001:cafe::ff07:bdcc:bc59:ff9f
 22             |10.0.1.166     |2001:cafe::ff07:bdcc:bc59:ff9f
@@ -162,7 +162,7 @@ SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip IN ('10.0.1.1', '10.0.1.20
 filterInCIDRIpv6-Ignore
 SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip IN ('127.0.0.1', '2001:cafe::13e1:16fc:8726:1bf8', '2001:cafe::/48') ORDER BY id LIMIT 10;
 
-      id       |   client_ip   |           dest_ip            
+      id       |   client_ip   |           dest_ip
 ---------------+---------------+------------------------------
 20             |10.0.1.199     |2001:cafe::ff07:bdcc:bc59:ff9f
 22             |10.0.1.166     |2001:cafe::ff07:bdcc:bc59:ff9f
@@ -173,22 +173,22 @@ SELECT id, client_ip, dest_ip FROM logs WHERE dest_ip IN ('127.0.0.1', '2001:caf
 groupByIpv4
 SELECT client_ip FROM logs GROUP BY client_ip LIMIT 5;
 
-   client_ip:s   
+   client_ip:s
 ---------------
-null           
-10.0.0.105     
-10.0.0.107     
-10.0.0.109     
-10.0.0.113    
+null
+10.0.0.105
+10.0.0.107
+10.0.0.109
+10.0.0.113
 ;
 
 groupByIpv6
 SELECT dest_ip FROM logs GROUP BY dest_ip ORDER BY dest_ip DESC LIMIT 5;
 
-           dest_ip            
+           dest_ip
 ------------------------------
-fe80::a65e:60ff:fee8:fee9     
-fe80::86ba:3bff:fe05:c3f3     
+fe80::a65e:60ff:fee8:fee9
+fe80::86ba:3bff:fe05:c3f3
 2001:cafe::ff07:bdcc:bc59:ff9f
 2001:cafe::ff07:bdcc:bc59:ff9e
 2001:cafe::ff07:bdcc:bc59:ff9d
@@ -197,10 +197,10 @@ fe80::86ba:3bff:fe05:c3f3
 groupByIpv4AndIpv6
 SELECT client_ip, dest_ip FROM logs GROUP BY client_ip, dest_ip ORDER BY dest_ip DESC LIMIT 5;
 
-   client_ip   |           dest_ip            
+   client_ip   |           dest_ip
 ---------------+------------------------------
-10.0.1.222     |fe80::a65e:60ff:fee8:fee9     
-10.0.1.13      |fe80::86ba:3bff:fe05:c3f3     
+10.0.1.222     |fe80::a65e:60ff:fee8:fee9
+10.0.1.13      |fe80::86ba:3bff:fe05:c3f3
 null           |2001:cafe::ff07:bdcc:bc59:ff9f
 10.0.1.166     |2001:cafe::ff07:bdcc:bc59:ff9f
 10.0.1.199     |2001:cafe::ff07:bdcc:bc59:ff9f
@@ -210,11 +210,11 @@ null           |2001:cafe::ff07:bdcc:bc59:ff9f
 groupByIpv4AndPort
 SELECT client_ip, client_port FROM logs GROUP BY client_ip, client_port ORDER BY client_port DESC LIMIT 5;
 
-   client_ip   |  client_port  
+   client_ip   |  client_port
 ---------------+---------------
-10.0.1.9       |65004          
-10.0.0.129     |63982          
-null           |63238          
-null           |61337          
-null           |61220       
+10.0.1.9       |65004
+10.0.0.129     |63982
+null           |63238
+null           |61337
+null           |61220
 ;

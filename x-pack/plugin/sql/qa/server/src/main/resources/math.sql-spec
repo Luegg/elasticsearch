@@ -95,7 +95,7 @@ SELECT 5 + 2 * 3 / 2 % 2 AS c, PI() as e, first_name FROM "test_emp" WHERE emp_n
 
 //
 // binary functions
-// 
+//
 mathATan2
 SELECT ATAN2(emp_no, emp_no) m, first_name FROM "test_emp" WHERE emp_no < 10010 ORDER BY emp_no;
 mathPowerPositive

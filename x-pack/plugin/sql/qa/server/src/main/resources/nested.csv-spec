@@ -8,24 +8,24 @@
 describeParent
 DESCRIBE test_emp;
 
-       column       |     type      |    mapping    
+       column       |     type      |    mapping
 --------------------+---------------+---------------
-birth_date          |TIMESTAMP      |datetime       
-dep                 |STRUCT         |nested         
-dep.dep_id          |VARCHAR        |keyword        
-dep.dep_name        |VARCHAR        |text           
-dep.dep_name.keyword|VARCHAR        |keyword        
-dep.from_date       |TIMESTAMP      |datetime       
-dep.to_date         |TIMESTAMP      |datetime       
-emp_no              |INTEGER        |integer        
-first_name          |VARCHAR        |text           
-first_name.keyword  |VARCHAR        |keyword        
-gender              |VARCHAR        |keyword        
-hire_date           |TIMESTAMP      |datetime       
-languages           |TINYINT        |byte           
-last_name           |VARCHAR        |text           
-last_name.keyword   |VARCHAR        |keyword        
-name                |VARCHAR        |keyword        
+birth_date          |TIMESTAMP      |datetime
+dep                 |STRUCT         |nested
+dep.dep_id          |VARCHAR        |keyword
+dep.dep_name        |VARCHAR        |text
+dep.dep_name.keyword|VARCHAR        |keyword
+dep.from_date       |TIMESTAMP      |datetime
+dep.to_date         |TIMESTAMP      |datetime
+emp_no              |INTEGER        |integer
+first_name          |VARCHAR        |text
+first_name.keyword  |VARCHAR        |keyword
+gender              |VARCHAR        |keyword
+hire_date           |TIMESTAMP      |datetime
+languages           |TINYINT        |byte
+last_name           |VARCHAR        |text
+last_name.keyword   |VARCHAR        |keyword
+name                |VARCHAR        |keyword
 salary              |INTEGER        |integer
 ;
 
@@ -45,13 +45,13 @@ d002             |Finance         |1990-12-25T00:00:00.000Z|1992-11-05T00:00:00.
 nestedSingleFieldSelect
 SELECT dep.dep_id FROM test_emp LIMIT 5;
 
- dep.dep_id:s   
+ dep.dep_id:s
 
-d005           
-d007           
-d004           
-d004           
-d003           
+d005
+d007
+d004
+d004
+d003
 ;
 
 filterPerNestedWithOrderByTopLevel
@@ -59,11 +59,11 @@ SELECT first_name f, last_name l, YEAR(dep.from_date) d FROM test_emp WHERE dep.
 
 f:s                  | l:s                  | d:i
 
-Chirstian            |Koblick               |1986           
-Duangkaew            |Piveteau              |1996           
-Gino                 |Leonhardt             |1989           
-Hidefumi             |Caine                 |1992           
-Jayson               |Mandell               |1999    
+Chirstian            |Koblick               |1986
+Duangkaew            |Piveteau              |1996
+Gino                 |Leonhardt             |1989
+Hidefumi             |Caine                 |1992
+Jayson               |Mandell               |1999
 ;
 
 filterPerNestedWithOrderByNested
@@ -71,11 +71,11 @@ SELECT first_name f, last_name l, YEAR(dep.from_date) d FROM test_emp WHERE dep.
 
 f:s                  | l:s                  | d:i
 
-Sreekrishna          |Servieres             |1985           
-Zhongwei             |Rosen                 |1986           
-Chirstian            |Koblick               |1986           
-Vishv                |Zockler               |1987           
-null                 |Chappelet             |1988    
+Sreekrishna          |Servieres             |1985
+Zhongwei             |Rosen                 |1986
+Chirstian            |Koblick               |1986
+Vishv                |Zockler               |1987
+null                 |Chappelet             |1988
 ;
 
 filterPerNestedWithOrderByNestedWithAlias
@@ -121,7 +121,7 @@ Zvonko               |Nyanchama      |1989
 selectNestedFieldFirst
 SELECT dep.dep_id, last_name FROM test_emp ORDER BY last_name LIMIT 5;
 
-dep.dep_id:s   |   last_name:s   
+dep.dep_id:s   |   last_name:s
 
 d005           |Awdeh
 d003           |Azuma
@@ -135,11 +135,11 @@ SELECT first_name, dep.dep_id FROM test_emp ORDER BY first_name LIMIT 5;
 
 first_name:s   |  dep.dep_id:s
 ---------------+---------------
-Alejandro      |d002           
-Amabile        |d005           
-Anneke         |d005           
-Anoosh         |d005           
-Arumugam       |d008           
+Alejandro      |d002
+Amabile        |d005
+Anneke         |d005
+Anoosh         |d005
+Arumugam       |d008
 ;
 
 selectNestedFieldInTheMiddle
@@ -293,7 +293,7 @@ selectNestedFieldsWithTwoNestedConditions
 SELECT CONCAT(CONCAT(first_name, ' '), last_name) AS name, dep.dep_name, dep.dep_id, dep.from_date FROM test_emp WHERE dep.dep_name = 'Production' AND dep.from_date > '1990-01-01' AND first_name IS NOT NULL;
 
 
-      name:s         |  dep.dep_name:s  | dep.dep_id:s  |    dep.from_date:ts      
+      name:s         |  dep.dep_name:s  | dep.dep_id:s  |    dep.from_date:ts
 ---------------------+------------------+---------------+------------------------
 Parto Bamford        |Production        |d004           |1995-12-03T00:00:00.000Z
 Duangkaew Piveteau   |Production        |d004           |1996-11-24T00:00:00.000Z
@@ -319,7 +319,7 @@ Sreekrishna Servieres|Sales             |d007           |1993-05-05T00:00:00.000
 selectNestedAndRootDocument_WithTwoNestedConditions_AndOneRootCondition
 SELECT last_name AS name, dep.dep_name, dep.dep_id, dep.from_date FROM test_emp WHERE dep.dep_name = 'Production' AND dep.from_date > '1990-01-01' AND last_name LIKE 'M%' ORDER BY last_name DESC;
 
-    name:s     | dep.dep_name:s | dep.dep_id:s  |    dep.from_date:ts      
+    name:s     | dep.dep_name:s | dep.dep_id:s  |    dep.from_date:ts
 ---------------+----------------+---------------+------------------------
 Mandell        |Production      |d004           |1999-01-23T00:00:00.000Z
 Malabarba      |Production      |d004           |1994-04-09T00:00:00.000Z
@@ -328,7 +328,7 @@ Malabarba      |Production      |d004           |1994-04-09T00:00:00.000Z
 selectNestedAndRootDocument_WithMultipleConditions_AndNestedSorting
 SELECT CONCAT(CONCAT(first_name, ' '), last_name) AS name, dep.dep_name, dep.dep_id, dep.from_date, dep.to_date FROM test_emp WHERE dep.from_date > '1990-01-01' AND dep.dep_name='Production' AND dep.to_date < '2000-01-01' ORDER BY dep.dep_id, dep.from_date, name;
 
-       name:s        |  dep.dep_name:s  | dep.dep_id:s  |    dep.from_date:ts    |    dep.to_date:ts       
+       name:s        |  dep.dep_name:s  | dep.dep_id:s  |    dep.from_date:ts    |    dep.to_date:ts
 ---------------------+------------------+---------------+------------------------+------------------------
 Otmar Herbst         |Production        |d004           |1991-09-18T00:00:00.000Z|1999-07-08T00:00:00.000Z
 Otmar Herbst         |Quality Management|d006           |1999-07-08T00:00:00.000Z|9999-01-01T00:00:00.000Z

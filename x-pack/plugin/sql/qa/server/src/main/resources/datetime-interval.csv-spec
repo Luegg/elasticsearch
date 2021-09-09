@@ -27,7 +27,7 @@ SELECT INTERVAL '326' YEAR;
 
 INTERVAL '326' YEAR
 -------------------
-+326-0 
++326-0
 ;
 
 month
@@ -67,7 +67,7 @@ SELECT INTERVAL '223.16' SECOND;
 
 INTERVAL '223.16' SECOND
 ------------------------
-+0 00:03:43.16  
++0 00:03:43.16
 ;
 
 yearMonth
@@ -75,7 +75,7 @@ SELECT INTERVAL '163-11' YEAR TO MONTH;
 
 INTERVAL '163-11' YEAR TO MONTH
 -------------------------------
-+163-11  
++163-11
 ;
 
 dayHour
@@ -99,7 +99,7 @@ SELECT INTERVAL '163 12:39:59.163' DAY TO SECOND AS interval;
 
 interval
 ---------------
-+163 12:39:59.163  
++163 12:39:59.163
 ;
 
 daySecondNegative
@@ -107,7 +107,7 @@ SELECT INTERVAL -'163 23:39:56.23' DAY TO SECOND AS interval;
 
 interval
 ---------------
--163 23:39:56.23    
+-163 23:39:56.23
 ;
 
 hourMinute
@@ -123,7 +123,7 @@ SELECT INTERVAL '163:39:59.163' HOUR TO SECOND AS interval;
 
 interval
 ---------------
-+6 19:39:59.163   
++6 19:39:59.163
 ;
 
 minuteSecond
@@ -131,7 +131,7 @@ SELECT INTERVAL '163:59.163' MINUTE TO SECOND AS interval;
 
 interval
 ---------------
-+0 02:43:59.163  
++0 02:43:59.163
 ;
 
 intervalPlusInterval
@@ -145,7 +145,7 @@ INTERVAL 1 DAY + INTERVAL 53 MINUTES
 datePlusIntervalInline
 SELECT CAST('1969-05-13T12:34:56' AS DATETIME) + INTERVAL 49 YEARS AS result;
 
-       result       
+       result
 --------------------
 2018-05-13T12:34:56Z
 ;
@@ -153,9 +153,9 @@ SELECT CAST('1969-05-13T12:34:56' AS DATETIME) + INTERVAL 49 YEARS AS result;
 minusInterval
 SELECT - INTERVAL '49-1' YEAR TO MONTH result;
 
-    result     
+    result
 ---------------
--49-1         
+-49-1
 ;
 
 
@@ -171,9 +171,9 @@ SELECT INTERVAL '1' DAY - INTERVAL '2' HOURS AS result;
 intervalYearMultiply
 SELECT -2 * INTERVAL '3' YEARS AS result;
 
-    result     
+    result
 ---------------
--6-0    
+-6-0
 ;
 
 intervalDayMultiply
@@ -195,7 +195,7 @@ intervalNullMath
 schema::null_multiply:string|null_sub1:string|null_sub2:string|null_add:string
 SELECT null * INTERVAL '1 23:45' DAY TO MINUTES AS null_multiply, INTERVAL '1' DAY - null AS null_sub1, null - INTERVAL '1' DAY AS null_sub2, INTERVAL 1 DAY + null AS null_add;
 
-  null_multiply  |  null_sub1  |  null_sub2  |  null_add  
+  null_multiply  |  null_sub1  |  null_sub2  |  null_add
 -----------------+-------------+-------------+-------------
 null             |null         |null         |null
 ;
@@ -216,7 +216,7 @@ SELECT languages, CAST (languages * INTERVAL '1 10:30' DAY TO MINUTES AS string)
 dateMinusInterval
 SELECT CAST('2018-05-13T12:34:56' AS DATETIME) - INTERVAL '2-8' YEAR TO MONTH AS result;
 
-       result       
+       result
 --------------------
 2015-09-13T12:34:56Z
 ;
@@ -224,21 +224,21 @@ SELECT CAST('2018-05-13T12:34:56' AS DATETIME) - INTERVAL '2-8' YEAR TO MONTH AS
 datePlusInterval
 SELECT MONTH(birth_date) AS m, MONTH(birth_date + INTERVAL '1-2' YEAR TO MONTH) AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-       m       |       f       
+       m       |       f
 ---------------+---------------
-null           |null           
-2              |4              
-4              |6              
-5              |7              
-6              |8     
+null           |null
+2              |4
+4              |6
+5              |7
+6              |8
 ;
 
 datePlusMixInterval
 SELECT birth_date, birth_date + INTERVAL '1-2' YEAR TO MONTH AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-     birth_date:ts  |         f:ts         
+     birth_date:ts  |         f:ts
 --------------------+--------------------
-null                |null                
+null                |null
 1952-02-27T00:00:00Z|1953-04-27T00:00:00Z
 1952-04-19T00:00:00Z|1953-06-19T00:00:00Z
 1952-05-15T00:00:00Z|1953-07-15T00:00:00Z
@@ -249,21 +249,21 @@ null                |null
 dateMinusInterval
 SELECT YEAR(birth_date) AS y, YEAR(birth_date - INTERVAL 1 YEAR) AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-       y       |       f       
+       y       |       f
 ---------------+---------------
-null           |null           
-1952           |1951           
-1952           |1951           
-1952           |1951           
-1952           |1951  
+null           |null
+1952           |1951
+1952           |1951
+1952           |1951
+1952           |1951
 ;
 
 datePlusMixInterval
 SELECT birth_date, birth_date + INTERVAL '1-2' YEAR TO MONTH AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-     birth_date:ts  |         f:ts          
+     birth_date:ts  |         f:ts
 --------------------+--------------------
-null                |null                
+null                |null
 1952-02-27T00:00:00Z|1953-04-27T00:00:00Z
 1952-04-19T00:00:00Z|1953-06-19T00:00:00Z
 1952-05-15T00:00:00Z|1953-07-15T00:00:00Z
@@ -274,9 +274,9 @@ null                |null
 dateAndMultipleIntervals
 SELECT birth_date, birth_date - INTERVAL 1 YEAR  + INTERVAL '2-3' YEAR TO MONTH AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-     birth_date:ts  |         f:ts          
+     birth_date:ts  |         f:ts
 --------------------+--------------------
-null                |null                
+null                |null
 1952-02-27T00:00:00Z|1953-05-27T00:00:00Z
 1952-04-19T00:00:00Z|1953-07-19T00:00:00Z
 1952-05-15T00:00:00Z|1953-08-15T00:00:00Z
@@ -287,129 +287,129 @@ null                |null
 datePlusIntervalWhereClause
 SELECT birth_date, YEAR(birth_date + INTERVAL 1 YEAR) AS f FROM test_emp WHERE YEAR(birth_date + INTERVAL 1 YEAR) > 1 GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-     birth_date:ts  |         f:i          
+     birth_date:ts  |         f:i
 --------------------+--------------------
-1952-02-27T00:00:00Z|1953           
-1952-04-19T00:00:00Z|1953           
-1952-05-15T00:00:00Z|1953           
-1952-06-13T00:00:00Z|1953           
-1952-07-08T00:00:00Z|1953   
+1952-02-27T00:00:00Z|1953
+1952-04-19T00:00:00Z|1953
+1952-05-15T00:00:00Z|1953
+1952-06-13T00:00:00Z|1953
+1952-07-08T00:00:00Z|1953
 ;
 
 dateMinusIntervalOrder
 SELECT birth_date, MONTH(birth_date - INTERVAL 1 YEAR) AS f FROM test_emp GROUP BY birth_date ORDER BY MONTH(birth_date - INTERVAL 1 YEAR) ASC LIMIT 5;
 
-     birth_date:ts  |         f:i          
+     birth_date:ts  |         f:i
 --------------------+--------------------
-null                |null           
-1952-02-27T00:00:00Z|2              
-1952-04-19T00:00:00Z|4              
-1952-05-15T00:00:00Z|5              
-1952-06-13T00:00:00Z|6   
+null                |null
+1952-02-27T00:00:00Z|2
+1952-04-19T00:00:00Z|4
+1952-05-15T00:00:00Z|5
+1952-06-13T00:00:00Z|6
 ;
 
 // see https://github.com/elastic/elasticsearch/issues/35745
 datePlusIntervalHavingClause-Ignore
 SELECT birth_date, MAX(hire_date) - INTERVAL 1 YEAR AS f FROM test_emp GROUP BY birth_date ORDER BY birth_date ASC LIMIT 5;
 
-     birth_date:ts  |         f:ts          
+     birth_date:ts  |         f:ts
 --------------------+--------------------
-1952-02-27T00:00:00Z|1953           
-1952-04-19T00:00:00Z|1953           
-1952-05-15T00:00:00Z|1953           
-1952-06-13T00:00:00Z|1953           
-1952-07-08T00:00:00Z|1953   
+1952-02-27T00:00:00Z|1953
+1952-04-19T00:00:00Z|1953
+1952-05-15T00:00:00Z|1953
+1952-06-13T00:00:00Z|1953
+1952-07-08T00:00:00Z|1953
 ;
 
 monthOfDatePlusInterval_And_GroupBy
 SELECT WEEK_OF_YEAR(birth_date + INTERVAL 25 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 3 ORDER BY c DESC, x ASC;
 
-      x:i      |       c:l       
+      x:i      |       c:l
 ---------------+---------------
-null           |10             
-22             |6              
-4              |4              
-16             |4              
-30             |4              
-40             |4              
-45             |4              
+null           |10
+22             |6
+4              |4
+16             |4
+30             |4
+40             |4
+45             |4
 8              |3
-21             |3              
-28             |3              
-32             |3              
+21             |3
+28             |3
+32             |3
 37             |3
 ;
 
 dayOfWeekPlusInterval_And_GroupBy
 SELECT DOW(birth_date + INTERVAL 5 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 3 ORDER BY c DESC;
 
-      x:i      |       c:l       
+      x:i      |       c:l
 ---------------+---------------
-2              |18             
-3              |15             
-5              |15             
-4              |12             
-6              |12             
-null           |10             
-7              |10             
-1              |8              
+2              |18
+3              |15
+5              |15
+4              |12
+6              |12
+null           |10
+7              |10
+1              |8
 ;
 
 dayNamePlusInterval_And_GroupBy
 SELECT DAY_NAME(birth_date + INTERVAL 5 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 10 ORDER BY c DESC;
 
-      x:s      |       c:l       
+      x:s      |       c:l
 ---------------+---------------
-Monday         |18             
-Thursday       |15             
-Tuesday        |15             
-Friday         |12             
-Wednesday      |12             
-null           |10             
-Saturday       |10          
+Monday         |18
+Thursday       |15
+Tuesday        |15
+Friday         |12
+Wednesday      |12
+null           |10
+Saturday       |10
 ;
 
 monthNamePlusInterval_And_GroupBy
 SELECT MONTH_NAME(birth_date + INTERVAL 5 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 5 ORDER BY c DESC;
 
-      x:s      |       c:l       
+      x:s      |       c:l
 ---------------+---------------
-null           |10             
-May            |10             
-September      |10             
-July           |9              
-October        |9              
-April          |8              
-February       |8              
-November       |8              
-December       |7              
-June           |7              
-August         |6              
-January        |6             
+null           |10
+May            |10
+September      |10
+July           |9
+October        |9
+April          |8
+February       |8
+November       |8
+December       |7
+June           |7
+August         |6
+January        |6
 ;
 
 quarterPlusInterval_And_GroupBy
 SELECT QUARTER(birth_date + INTERVAL 5 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 5 ORDER BY x DESC;
 
-      x:i      |       c:l       
+      x:i      |       c:l
 ---------------+---------------
-4              |24             
-3              |25             
-2              |25             
-1              |16             
-null           |10             
+4              |24
+3              |25
+2              |25
+1              |16
+null           |10
 ;
 
 dayOfMonthPlusInterval_And_GroupBy
 SELECT DOM(birth_date + INTERVAL 5 YEAR) x, COUNT(*) c FROM test_emp GROUP BY x HAVING c >= 5 ORDER BY x DESC;
 
-      x:i      |       c:l       
+      x:i      |       c:l
 ---------------+---------------
-25             |5              
-23             |6              
-21             |5              
-19             |7              
-7              |5              
-1              |5              
-null           |10             
+25             |5
+23             |6
+21             |5
+19             |7
+7              |5
+1              |5
+null           |10
 ;
